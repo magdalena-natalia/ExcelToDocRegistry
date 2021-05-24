@@ -160,32 +160,16 @@ class NewRCPDDoc:
 def main():
     xlsx_folder = 'excel'
     word_folder = 'word'
-
     # return list of files in directory under the path
-    try:
-        xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
-        if not xlsx_files:
-            print('Katalog "excel" jest pusty. Proszę dodać pliki do konwersji i ponownie uruchomić program.')
-        for item in xlsx_files:
-            xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
-            raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
-            try:
-                doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator,
-                                 column1=keys,
-                                 column2=values, height=297, width=210, space=12.7, column0_width=0.42,
-                                 column1_width=2.10,
-                                 column2_width=4.68)
-                print('Proszę czekać. Konwertowanie plików w toku.')
-                doc.modify()
-                doc.save()
-            except IOError:
-                print('Katalog "word" nie został znaleziony.\n\n Proszę upewnić się, iż istnieje w tym samy folderze, '
-                      'co plik uruchamiający program, i ponownie uruchomić program.')
-        print('Konwertowanie zakończone. Gotowe pliki znajdują się w folderze docelowym.')
-
-    except IOError:
-        print('Katalog "excel" nie został znaleziony.\n\n Proszę upewnić się, iż istnieje w tym samy folderze, '
-              'co plik uruchamiający program, i ponownie uruchomić program.')
+    xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
+    for item in xlsx_files:
+        xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
+        raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
+        doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator, column1=keys,
+                         column2=values, height=297, width=210, space=12.7, column0_width=0.42, column1_width=2.10,
+                         column2_width=4.68)
+        doc.modify()
+        doc.save()
 
 
 if __name__ == '__main__':
