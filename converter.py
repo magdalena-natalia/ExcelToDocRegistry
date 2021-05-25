@@ -1,6 +1,9 @@
 import os
 import re
+import tkinter as tk
+import tkinter.ttk as ttk
 from pathlib import Path
+from tkinter import filedialog as fd
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
 # from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -16,7 +19,7 @@ class RCPDXlsx:
     def __init__(self, folder, filename, read_only):
         self.folder = folder
         self.filename = filename
-        self.path = Path.cwd() / self.folder / self.filename
+        self.path = f'{self.folder}/{self.filename}'
         self.workbook = openpyxl.load_workbook(self.path, data_only=True, read_only=read_only)
 
     @staticmethod
@@ -44,6 +47,8 @@ class NewRCPDDoc:
         self.doc = Document()
         self.folder = folder
         self.raw_filename = raw_filename
+        self.filename = self.raw_filename + '.docx'
+        self.path = f'{self.folder}/{self.filename}'
         self.administrator = administrator
         self.column1 = column1
         self.column2 = column2
@@ -153,39 +158,88 @@ class NewRCPDDoc:
 
     def save(self):
         """ Save the document. """
-        filename = self.raw_filename + '.docx'
-        self.doc.save(Path.cwd() / self.folder / filename)
+        # self.doc.save(Path.cwd() / self.folder / filename)
+        # self.filename = self.raw_filename + '.docx'
+        # self.path = f'{self.folder}/{self.filename}'
+        self.doc.save(self.path)
 
 
-def main():
-    xlsx_folder = 'excel'
-    word_folder = 'word'
+class Application(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.excel_path = None
+        self.word_path = None
+        self.grid()
+        # self.set_style('W.TLabel', foreground='green')
+        # self.set_style('TButton', font=('calibri', 20, 'bold', 'underline'), foreground='red')
+        self.create_widgets()
 
-    # return list of files in directory under the path
-    try:
-        xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
-        if not xlsx_files:
-            print('Katalog "excel" jest pusty. Proszę dodać pliki do konwersji i ponownie uruchomić program.')
+    # @staticmethod
+    # def select_folder(variable):
+    #     variable = fd.askdirectory()
+    # command=lambda: self.select_folder(self.excel_path)
+
+    def select_excel_path(self):
+        self.excel_path = fd.askdirectory()
+
+    def select_word_path(self):
+        self.word_path = fd.askdirectory()
+
+    # def set_style(self, name, **kwargs):
+    #     style = ttk.Style()
+    #     style.configure(name, kwargs)
+    #     return style
+
+    def create_widgets(self):
+        # Create an instruction label
+        instr_lbl = tk.Label(self, text='By zmienić któryś z domyślnych katalogów, kliknij odpowiedni przycisk.')
+        instr_lbl.grid(row=0, column=0, columnspan=4, sticky='W')
+
+        # Create buttons
+        self.excel_bttn = tk.Button(self, text="Katalog z plikami Excel",
+                                    command=self.select_excel_path)
+        self.excel_bttn.grid(row=1, column=0, columnspan=2, sticky='W')
+        self.word_bttn = tk.Button(self, text="Katalog z plikami Word",
+                                   command=self.select_word_path)
+        self.word_bttn.grid(row=1, column=2, columnspan=2, sticky='W')
+        self.quit_bttn = tk.Button(self, text="Zamknij", fg="red", command=self.master.destroy)
+        self.quit_bttn.grid(row=2, column=0, columnspan=2, sticky='W')
+        self.submit_buttn = tk.Button(self, text="Konwertuj", command=self.convert)
+        self.submit_buttn.grid(row=2, column=2, columnspan=2, sticky='W')
+
+    def convert(self):
+        if self.excel_path:
+            xlsx_folder = self.excel_path
+            # return list of files in directory under the path
+            xlsx_files = os.listdir(self.excel_path)
+        else:
+            xlsx_folder = 'excel'
+            xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
+
         for item in xlsx_files:
             xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
             raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
-            try:
-                doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator,
-                                 column1=keys,
-                                 column2=values, height=297, width=210, space=12.7, column0_width=0.42,
-                                 column1_width=2.10,
-                                 column2_width=4.68)
-                print('Proszę czekać. Konwertowanie plików w toku.')
-                doc.modify()
-                doc.save()
-            except IOError:
-                print('Katalog "word" nie został znaleziony.\n\n Proszę upewnić się, iż istnieje w tym samy folderze, '
-                      'co plik uruchamiający program, i ponownie uruchomić program.')
-        print('Konwertowanie zakończone. Gotowe pliki znajdują się w folderze docelowym.')
 
-    except IOError:
-        print('Katalog "excel" nie został znaleziony.\n\n Proszę upewnić się, iż istnieje w tym samy folderze, '
-              'co plik uruchamiający program, i ponownie uruchomić program.')
+            if self.word_path:
+                word_folder = self.word_path
+            else:
+                word_folder = 'word'
+                self.word_path = Path.cwd() / word_folder
+
+            doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator, column1=keys,
+                             column2=values, height=297, width=210, space=12.7, column0_width=0.42, column1_width=2.10,
+                             column2_width=4.68)
+            doc.modify()
+            # TODO Dlaczego nie działa
+            doc.save()
+
+
+def main():
+    root = tk.Tk()
+    root.geometry("750x100")
+    app = Application(master=root)
+    app.mainloop()
 
 
 if __name__ == '__main__':
