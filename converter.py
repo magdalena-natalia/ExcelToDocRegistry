@@ -13,6 +13,8 @@ from docx.shared import Inches, Mm, Pt
 import openpyxl
 
 
+# klasy do osobnych plików
+
 class RCPDXlsx:
     """ A class to represent an existing RCPD (Register of Processing Operations) Excel document. """
 
@@ -212,6 +214,7 @@ class Application(tk.Frame):
         self.submit_buttn.grid(row=2, column=2, columnspan=2, sticky='W')
 
     def convert(self):
+        # TODO isdir ()
         try:
             if self.excel_path:
                 xlsx_folder = self.excel_path
@@ -236,6 +239,7 @@ class Application(tk.Frame):
                     word_folder = 'word'
                     self.word_path = Path.cwd() / word_folder
 
+                # isdir
                 try:
                     doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator,
                                      column1=keys,
@@ -254,7 +258,8 @@ class Application(tk.Frame):
 
 def main():
     root = tk.Tk()
-    root.geometry("750x100")
+    root.geometry('750x100')
+    root.title('Konwertor rejestru: Excel do Word')
     app = Application(master=root)
     app.mainloop()
 

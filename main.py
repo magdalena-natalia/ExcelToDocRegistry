@@ -1,12 +1,19 @@
 import os
 import re
-from pathlib import Path
-from docx import Document
-from docx.enum.table import WD_TABLE_ALIGNMENT
-# from docx.enum.text import WD_ALIGN_PARAGRAPH
-from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
-from docx.oxml.shared import OxmlElement, qn
-from docx.shared import Inches, Mm, Pt
+# from pathlib import Path
+# from docx import Document
+# from docx.enum.table import WD_TABLE_ALIGNMENT
+# # from docx.enum.text import WD_ALIGN_PARAGRAPH
+# from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+# from docx.oxml.shared import OxmlElement, qn
+# from docx.shared import Inches, Mm, Pt
+# import openpyxl
+import pathlib
+import docx
+import docx.enum.table as enum_table
+import docx.enum.text as enum_text
+import docx.oxml.shared
+import docx.shared
 import openpyxl
 
 
@@ -16,7 +23,7 @@ class RCPDXlsx:
     def __init__(self, folder, filename, read_only):
         self.folder = folder
         self.filename = filename
-        self.path = Path.cwd() / self.folder / self.filename
+        self.path = pathlib.Path.cwd() / self.folder / self.filename
         self.workbook = openpyxl.load_workbook(self.path, data_only=True, read_only=read_only)
 
     @staticmethod
@@ -41,7 +48,7 @@ class NewRCPDDoc:
 
     def __init__(self, folder, raw_filename, administrator, column1, column2, height, width, space,
                  column0_width, column1_width, column2_width):
-        self.doc = Document()
+        self.doc = docx.Document()
         self.folder = folder
         self.raw_filename = raw_filename
         self.administrator = administrator
@@ -61,26 +68,26 @@ class NewRCPDDoc:
         style = self.doc.styles[style_name]
         font = style.font
         font.name = font_name
-        font.size = Pt(font_size)
+        font.size = docx.shared.Pt(font_size)
 
     def set_page_size(self):
         """ Set the page size and its equal (but a double top one) margins and spaces."""
         section = self.doc.sections[0]
-        section.page_height = Mm(self.height)
-        section.page_width = Mm(self.width)
-        section.left_margin = Mm(self.space)
-        section.right_margin = Mm(self.space)
-        section.top_margin = Mm(2 * self.space)
-        section.bottom_margin = Mm(self.space)
-        section.header_distance = Mm(self.space)
-        section.footer_distance = Mm(self.space)
+        section.page_height = docx.shared.Mm(self.height)
+        section.page_width = docx.shared.Mm(self.width)
+        section.left_margin = docx.shared.Mm(self.space)
+        section.right_margin = docx.shared.Mm(self.space)
+        section.top_margin = docx.shared.Mm(2 * self.space)
+        section.bottom_margin = docx.shared.Mm(self.space)
+        section.header_distance = docx.shared.Mm(self.space)
+        section.footer_distance = docx.shared.Mm(self.space)
 
     def set_header(self):
         """ Set the display of a header for all document's pages."""
         header = self.doc.sections[0].header
         header_text = header.paragraphs[0]
         # header_text.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        header_text.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+        header_text.alignment = enum_text.WD_PARAGRAPH_ALIGNMENT.CENTER
         header_text.style = self.doc.styles['Normal']
         header_text.add_run(self.title).bold = True
 
@@ -104,10 +111,10 @@ class NewRCPDDoc:
 
     def draw_table(self, table):
         """ Draw a three-column table centered on the page. """
-        table.alignment = WD_TABLE_ALIGNMENT.CENTER
-        table.add_column(Inches(self.column0_width))
-        table.add_column(Inches(self.column1_width))
-        table.add_column(Inches(self.column2_width))
+        table.alignment = enum_table.WD_TABLE_ALIGNMENT.CENTER
+        table.add_column(docx.shared.Inches(self.column0_width))
+        table.add_column(docx.shared.Inches(self.column1_width))
+        table.add_column(docx.shared.Inches(self.column2_width))
 
     @staticmethod
     def populate_table(table, data):
@@ -139,8 +146,8 @@ class NewRCPDDoc:
     def shade_cells(cells, colour):
         """ Shade given table cells with a given colour."""
         for c in cells:
-            tc_v_align = OxmlElement('w:shd')
-            tc_v_align.set(qn('w:fill'), colour)
+            tc_v_align = docx.oxml.shared.OxmlElement('w:shd')
+            tc_v_align.set(docx.oxml.shared.qn('w:fill'), colour)
             c._tc.get_or_add_tcPr().append(tc_v_align)
 
     def modify(self):
@@ -154,7 +161,7 @@ class NewRCPDDoc:
     def save(self):
         """ Save the document. """
         filename = self.raw_filename + '.docx'
-        self.doc.save(Path.cwd() / self.folder / filename)
+        self.doc.save(pathlib.Path.cwd() / self.folder / filename)
 
 
 def main():
@@ -163,7 +170,7 @@ def main():
 
     # return list of files in directory under the path
     try:
-        xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
+        xlsx_files = os.listdir(pathlib.Path.cwd() / xlsx_folder)
         if not xlsx_files:
             print('Katalog "excel" jest pusty. Proszę dodać pliki do konwersji i ponownie uruchomić program.')
         for item in xlsx_files:
