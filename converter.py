@@ -192,47 +192,64 @@ class Application(tk.Frame):
     #     return style
 
     def create_widgets(self):
-        # Create an instruction label
-        instr_lbl = tk.Label(self, text='By zmienić któryś z domyślnych katalogów, kliknij odpowiedni przycisk.')
-        instr_lbl.grid(row=0, column=0, columnspan=4, sticky='W')
+        # Create labels
+        self.instr_lbl = tk.Label(self,
+                                  text='\nBy zmienić któryś z domyślnych katalogów, kliknij odpowiedni przycisk.\n')
+        self.instr_lbl.grid(row=0, column=0, columnspan=4, sticky='W')
+        self.info_lbl = tk.Label(self, text='')
+        self.info_lbl.grid(row=3, column=0, columnspan=4, sticky='W')
 
         # Create buttons
-        self.excel_bttn = tk.Button(self, text="Katalog z plikami Excel",
+        self.excel_bttn = tk.Button(self, text='Katalog z plikami Excel',
                                     command=self.select_excel_path)
         self.excel_bttn.grid(row=1, column=0, columnspan=2, sticky='W')
-        self.word_bttn = tk.Button(self, text="Katalog z plikami Word",
+        self.word_bttn = tk.Button(self, text='Katalog z plikami Word',
                                    command=self.select_word_path)
         self.word_bttn.grid(row=1, column=2, columnspan=2, sticky='W')
-        self.quit_bttn = tk.Button(self, text="Zamknij", fg="red", command=self.master.destroy)
+        self.quit_bttn = tk.Button(self, text='Zamknij', fg='red', command=self.master.destroy)
         self.quit_bttn.grid(row=2, column=0, columnspan=2, sticky='W')
-        self.submit_buttn = tk.Button(self, text="Konwertuj", command=self.convert)
+        self.submit_buttn = tk.Button(self, text='Konwertuj', fg='green', command=self.convert)
         self.submit_buttn.grid(row=2, column=2, columnspan=2, sticky='W')
 
     def convert(self):
-        if self.excel_path:
-            xlsx_folder = self.excel_path
-            # return list of files in directory under the path
-            xlsx_files = os.listdir(self.excel_path)
-        else:
-            xlsx_folder = 'excel'
-            xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
-
-        for item in xlsx_files:
-            xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
-            raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
-
-            if self.word_path:
-                word_folder = self.word_path
+        try:
+            if self.excel_path:
+                xlsx_folder = self.excel_path
+                # return list of files in directory under the path
+                xlsx_files = os.listdir(self.excel_path)
             else:
-                word_folder = 'word'
-                self.word_path = Path.cwd() / word_folder
+                xlsx_folder = 'excel'
+                xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
+            if not xlsx_files:
+                self.info_lbl.config(
+                    text='\nTen katalog jest pusty.'
+                         '\nProszę albo dodać pliki do konwersji i ponownie uruchomić program '
+                         '\nalbo wybrać inny katalog.')
 
-            doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator, column1=keys,
-                             column2=values, height=297, width=210, space=12.7, column0_width=0.42, column1_width=2.10,
-                             column2_width=4.68)
-            doc.modify()
-            # TODO Dlaczego nie działa
-            doc.save()
+            for item in xlsx_files:
+                xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
+                raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
+
+                if self.word_path:
+                    word_folder = self.word_path
+                else:
+                    word_folder = 'word'
+                    self.word_path = Path.cwd() / word_folder
+
+                try:
+                    doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator,
+                                     column1=keys,
+                                     column2=values, height=297, width=210, space=12.7, column0_width=0.42,
+                                     column1_width=2.10,
+                                     column2_width=4.68)
+                    doc.modify()
+                    doc.save()
+                    self.info_lbl.config(text='\nKonwertowanie zakończone sukcesem.')
+                except FileNotFoundError:
+                    self.info_lbl.config(
+                        text='\nKatalog docelowy nie został znaleziony. Proszę wybrać istniejący katalog.')
+        except FileNotFoundError:
+            self.info_lbl.config(text='\nKatalog wyjściowy nie został znaleziony. Proszę wybrać istniejący katalog.')
 
 
 def main():
