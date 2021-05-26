@@ -13,8 +13,6 @@ from docx.shared import Inches, Mm, Pt
 import openpyxl
 
 
-# klasy do osobnych plików
-
 class RCPDXlsx:
     """ A class to represent an existing RCPD (Register of Processing Operations) Excel document. """
 
@@ -170,9 +168,6 @@ class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        # TODO do parametrów, bez hardkodowania
-        self.excel_folder = 'excel'
-        self.word_folder = 'word'
         self.excel_path = None
         self.word_path = None
         self.grid()
@@ -186,11 +181,10 @@ class Application(tk.Frame):
     # command=lambda: self.select_folder(self.excel_path)
 
     def select_excel_path(self):
-        self.excel_path = fd.askdirectory(initialdir=Path.cwd() / self.excel_folder)
+        self.excel_path = fd.askdirectory()
 
     def select_word_path(self):
-        self.word_path = fd.askdirectory(initialdir=Path.cwd() / self.word_folder)
-
+        self.word_path = fd.askdirectory()
 
     # def set_style(self, name, **kwargs):
     #     style = ttk.Style()
@@ -218,32 +212,32 @@ class Application(tk.Frame):
         self.submit_buttn.grid(row=2, column=2, columnspan=2, sticky='W')
 
     def convert(self):
-        # TODO isdir ()
         try:
             if self.excel_path:
-                self.excel_folder = self.excel_path
+                xlsx_folder = self.excel_path
                 # return list of files in directory under the path
-                excel_files = os.listdir(self.excel_path)
+                xlsx_files = os.listdir(self.excel_path)
             else:
-                excel_files = os.listdir(Path.cwd() / self.excel_folder)
-            if not excel_files:
+                xlsx_folder = 'excel'
+                xlsx_files = os.listdir(Path.cwd() / xlsx_folder)
+            if not xlsx_files:
                 self.info_lbl.config(
                     text='\nTen katalog jest pusty.'
                          '\nProszę albo dodać pliki do konwersji i ponownie uruchomić program '
                          '\nalbo wybrać inny katalog.')
 
-            for item in excel_files:
-                xlsx = RCPDXlsx(folder=self.excel_folder, filename=item, read_only=True)
+            for item in xlsx_files:
+                xlsx = RCPDXlsx(folder=xlsx_folder, filename=item, read_only=True)
                 raw_filename, administrator, keys, values = xlsx.extract_data(key_row=12, value_row=15)
 
                 if self.word_path:
-                    self.word_folder = self.word_path
+                    word_folder = self.word_path
                 else:
-                    self.word_path = Path.cwd() / self.word_folder
+                    word_folder = 'word'
+                    self.word_path = Path.cwd() / word_folder
 
-                # isdir
                 try:
-                    doc = NewRCPDDoc(folder=self.word_folder, raw_filename=raw_filename, administrator=administrator,
+                    doc = NewRCPDDoc(folder=word_folder, raw_filename=raw_filename, administrator=administrator,
                                      column1=keys,
                                      column2=values, height=297, width=210, space=12.7, column0_width=0.42,
                                      column1_width=2.10,
@@ -260,8 +254,8 @@ class Application(tk.Frame):
 
 def main():
     root = tk.Tk()
+    root.title('Konwerter rejestru: Excel -> Word')
     root.geometry('750x100')
-    root.title('Konwertor rejestru: Excel do Word')
     app = Application(master=root)
     app.mainloop()
 
