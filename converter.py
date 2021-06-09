@@ -19,6 +19,7 @@ class RCPDXlsx:
     """ A class to represent an existing RCPD (Register of Processing Operations) Excel document. """
 
     def __init__(self, folder, filename, read_only):
+         """Initialize a RCPDXlsx object."""
         self.folder = folder
         self.filename = filename
         self.path = f'{self.folder}/{self.filename}'
@@ -46,6 +47,7 @@ class NewRCPDDoc:
 
     def __init__(self, folder, raw_filename, administrator, column1, column2, height, width, space,
                  column0_width, column1_width, column2_width):
+        """Initialize a NewRCPDDoc object."""
         self.doc = Document()
         self.folder = folder
         self.raw_filename = raw_filename
@@ -167,7 +169,9 @@ class NewRCPDDoc:
 
 
 class Application(tk.Frame):
+    """ A class to represent GUI application. """
     def __init__(self, master=None):
+         """Initialize an Application object."""
         super().__init__(master)
         self.master = master
         # TODO do parametrów, bez hardkodowania
@@ -182,13 +186,16 @@ class Application(tk.Frame):
 
 
     def select_excel_path(self):
+        """ Set the default Excel document path of the application. """
         self.excel_path = fd.askdirectory(initialdir=Path.cwd() / self.excel_folder)
 
     def select_word_path(self):
+         """ Set the default Word document path of the application. """
         self.word_path = fd.askdirectory(initialdir=Path.cwd() / self.word_folder)
 
 
     def create_widgets(self):
+         """ Create the application widgets. """
         # Create labels
         self.instr_lbl = tk.Label(self,
                                   text='\nBy zmienić któryś z domyślnych katalogów, kliknij odpowiedni przycisk.\n')
@@ -211,6 +218,7 @@ class Application(tk.Frame):
         self.submit_buttn.grid(row=2, column=2, columnspan=2, sticky='W')
 
     def get_input_data(self):
+        """ Set the input location path of the application. """
         if not self.excel_path:
             self.excel_path = Path.cwd() / self.excel_folder
         else:
@@ -225,6 +233,7 @@ class Application(tk.Frame):
         return excel_files
 
     def set_output_location(self):
+        """ Set the output location path of the application. """
         if not self.word_path:
             self.word_path = Path.cwd() / self.word_folder
         else:
@@ -235,6 +244,7 @@ class Application(tk.Frame):
                     text='\nProszę wybrać istniejący katalog na skonwertowane pliki.')
 
     def create_doc(self, raw_filename, administrator, keys, values):
+        """ Create a document with input data. """
         doc = NewRCPDDoc(folder=self.word_folder, raw_filename=raw_filename, administrator=administrator,
                          column1=keys,
                          column2=values, height=297, width=210, space=12.7, column0_width=0.42,
@@ -244,6 +254,7 @@ class Application(tk.Frame):
         doc.save()
 
     def convert(self):
+        """ Convert an Excel document to the Word format. """
         excel_files = self.get_input_data()
         self.set_output_location()
         for item in excel_files:
