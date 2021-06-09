@@ -13,7 +13,7 @@ from docx.shared import Inches, Mm, Pt
 import openpyxl
 
 
-# TODO classes to seperate files
+# TODO classes to separate files
 
 class RCPDXlsx:
     """ A class to represent an existing RCPD (Register of Processing Operations) Excel document. """
