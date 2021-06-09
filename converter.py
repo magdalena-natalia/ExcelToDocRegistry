@@ -7,14 +7,13 @@ from pathlib import Path
 from tkinter import filedialog as fd
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
-# from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
 from docx.oxml.shared import OxmlElement, qn
 from docx.shared import Inches, Mm, Pt
 import openpyxl
 
 
-# klasy do osobnych plików
+# TODO classes to seperate files
 
 class RCPDXlsx:
     """ A class to represent an existing RCPD (Register of Processing Operations) Excel document. """
@@ -181,10 +180,6 @@ class Application(tk.Frame):
         # self.set_style('TButton', font=('calibri', 20, 'bold', 'underline'), foreground='red')
         self.create_widgets()
 
-    # @staticmethod
-    # def select_folder(variable):
-    #     variable = fd.askdirectory()
-    # command=lambda: self.select_folder(self.excel_path)
 
     def select_excel_path(self):
         self.excel_path = fd.askdirectory(initialdir=Path.cwd() / self.excel_folder)
@@ -192,10 +187,6 @@ class Application(tk.Frame):
     def select_word_path(self):
         self.word_path = fd.askdirectory(initialdir=Path.cwd() / self.word_folder)
 
-    # def set_style(self, name, **kwargs):
-    #     style = ttk.Style()
-    #     style.configure(name, kwargs)
-    #     return style
 
     def create_widgets(self):
         # Create labels
@@ -253,7 +244,6 @@ class Application(tk.Frame):
         doc.save()
 
     def convert(self):
-        # self.info_lbl.config(text='')
         excel_files = self.get_input_data()
         self.set_output_location()
         for item in excel_files:
