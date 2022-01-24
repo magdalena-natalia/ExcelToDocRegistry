@@ -1,0 +1,34 @@
+I
+Otwórz katalog, w którym znajduje sie plik "converter.pl"
+
+II
+Stwórz folder o nazwie: excel
+Jeśli zdecydujesz się na inną nazwę tego folderu (wielkość liter także ma znaczenie):
+  - otwórz  wyżej wymieniony plik
+  - odszukaj linijkę 178 (self.excel_folder = 'excel')
+  - zmień "excel" na właściwą nazwę tego folderu
+
+III
+Stwórz folder o nazwie: word
+Jeśli zdecydujesz się na inną nazwę tego folderu (wielkość liter także ma znaczenie):
+  - otwórz  wyżej wymieniony plik
+  - odszukaj linijkę 179 (self.excel_folder = 'word')
+  - zmień "word" na właściwą nazwę tego folderu
+
+IV
+Jeśli nie wolisz konwertować plików bezpośrednio z innego folderu niż excel (lub jego odpowednik o innej nazwie):
+  skopiuj pliki do przekonwertowania do katalogu excel
+
+V
+Odpal plik converter.py
+
+VI
+Jeśli pominięto krok IV:
+  - uzywając właściwego przycisku,
+      zmień ścieżkę folderu wyjściowego na katalog z plikami do skopiowania
+      
+
+VII
+Jeśli chcesz zachować przekonwertowane pliki w innym folderze niż word (lub jego odpowednik o innej nazwie)::
+  - uzywając właściwego przycisku,
+      zmień ścieżkę folderu docelowego na wybrany katalog
